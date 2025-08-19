@@ -87,7 +87,7 @@ int main() {
     printf("--- Header CNAB 240 gerado ---\n");
     printf("%s\n", headerFormatado);
     printf("---------------------------------\n");
-    printf("\nDetalhes dos campos:\n");
+    printf("Detalhes dos campos:\n");
     printf("Código Banco: %s\n", header.codigoBanco);
     printf("Lote Serviço: %s\n", header.loteServico);
     printf("Tipo Registro: %s\n", header.tipoRegistro);
