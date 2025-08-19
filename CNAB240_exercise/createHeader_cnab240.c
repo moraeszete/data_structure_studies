@@ -9,60 +9,84 @@
 // 06.0 Número Inscrição Empresa  19 32 14  Num            *G006
 
 // I=Posição inicial; F=Posição final; T=Tamanho
-
 #include <stdio.h>
-#include <string.h>
 
 // Estrutura simples para os campos do Header CNAB 240
 typedef struct {
-    char codigoBanco[4];         // 01.0 Código Banco Compensação (posição 1-3)
-    char loteServico[5];         // 02.0 Lote de Serviço (posição 4-7)
-    char tipoRegistro[2];        // 03.0 Tipo de Registro (posição 8)
-    char usoExclusivoCNAB[10];   // 04.0 Uso Exclusivo CNAB (posição 9-17)
-    char tipoInscricao[2];       // 05.0 Tipo Inscrição Empresa (posição 18)
-    char numeroInscricao[15];    // 06.0 Número Inscrição Empresa (posição 19-32)
+    char codigoBanco[4];         
+    char loteServico[5];         
+    char tipoRegistro[2];        
+    char usoExclusivoCNAB[10];   
+    char tipoInscricao[2];       
+    char numeroInscricao[15];   
 } HeaderCNAB;
 
-// Função para gerar o header e retornar como string
+// Função para copiar uma string para outra
+void copiar_string(char *destino, char *origem) {
+    int i = 0;
+    while (origem[i] != '\0') {
+        destino[i] = origem[i];
+        i++;
+    }
+    destino[i] = '\0'; // Adiciona o terminador nulo
+}
+
+// Função para formatar um campo com largura fixa
+// isso aqui eu pedi ajuda pro sonneto
+void formatar_campo(char *destino, char *origem, int largura, int *pos) {
+    int i = 0;
+    // Copia o texto de origem
+    while (origem[i] != '\0') {
+        destino[*pos] = origem[i];
+        (*pos)++;
+        i++;
+    }
+    
+    // Preenche o resto do espaço com espaços em branco se necessário
+    while (i < largura) {
+        destino[*pos] = ' ';
+        (*pos)++;
+        i++;
+    }
+}
+
+// Função para gerar o header e retornar como string (sem usar snprintf)
 void gerar_header(HeaderCNAB *header, char *resultado) {
-    snprintf(
-        resultado, 
-        33, // 32 caracteres + terminador nulo
-        "%-3s%-4s%-1s%-9s%-1s%-14s", 
-        header->codigoBanco,
-        header->loteServico,
-        header->tipoRegistro,
-        header->usoExclusivoCNAB,
-        header->tipoInscricao,
-        header->numeroInscricao
-    );
-    // Formata os campos do header CNAB 240 com tamanhos fixos:
-    // %-3s  = código banco (3 chars)
-    // %-4s  = lote de serviço (4 chars)
-    // %-1s  = tipo de registro (1 char)
-    // %-9s  = uso exclusivo CNAB (9 chars)
-    // %-1s  = tipo inscrição (1 char)
-    // %-14s = número inscrição (14 chars)
+    int posicao = 0;
+    
+    // Formata cada campo com o tamanho correto
+    formatar_campo(resultado, header->codigoBanco, 3, &posicao);
+    formatar_campo(resultado, header->loteServico, 4, &posicao);
+    formatar_campo(resultado, header->tipoRegistro, 1, &posicao);
+    formatar_campo(resultado, header->usoExclusivoCNAB, 9, &posicao);
+    formatar_campo(resultado, header->tipoInscricao, 1, &posicao);
+    formatar_campo(resultado, header->numeroInscricao, 14, &posicao);
+    
+    // Adiciona o terminador nulo
+    resultado[posicao] = '\0';
+    
+    // O resultado terá exatamente 32 caracteres mais o terminador nulo
 }
 
 int main() {
     HeaderCNAB header;
     char headerFormatado[33]; // 32 caracteres + terminador nulo
     
-    // Definir valores para o header
-    strcpy(header.codigoBanco, "001");
-    strcpy(header.loteServico, "0000");
-    strcpy(header.tipoRegistro, "0");
-    strcpy(header.usoExclusivoCNAB, "         ");
-    strcpy(header.tipoInscricao, "1");
-    strcpy(header.numeroInscricao, "12345678901234");
-    
-    // Gerar o header formatado
+    // Define valores para o header manualmente o tamanho do array ja conta com o terminador 
+    copiar_string(header.codigoBanco, "644");
+    copiar_string(header.loteServico, "6498");
+    copiar_string(header.tipoRegistro, "2");
+    copiar_string(header.usoExclusivoCNAB, "999999999");
+    copiar_string(header.tipoInscricao, "2");
+    copiar_string(header.numeroInscricao, "12345678901234");
+
+    // Gera o header formatado
     gerar_header(&header, headerFormatado);
     
-    // Mostrar o header gerado no console
-    printf("=== Header CNAB 240 gerado ===\n");
+    // Mostra o header gerado no console
+    printf("--- Header CNAB 240 gerado ---\n");
     printf("%s\n", headerFormatado);
+    printf("---------------------------------\n");
     printf("\nDetalhes dos campos:\n");
     printf("Código Banco: %s\n", header.codigoBanco);
     printf("Lote Serviço: %s\n", header.loteServico);
@@ -70,6 +94,6 @@ int main() {
     printf("Uso Exclusivo: %s\n", header.usoExclusivoCNAB);
     printf("Tipo Inscrição: %s\n", header.tipoInscricao);
     printf("Número Inscrição: %s\n", header.numeroInscricao);
-    
+
     return 0;
 }
